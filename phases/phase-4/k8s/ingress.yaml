@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: evo-todo-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: evo-todo.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: evo-todo-service
+                port:
+                  number: 8000
+# For HTTPS enablement, install cert-manager and create Certificate resources
+# Then add TLS block below and configure host/DNS accordingly.
+# tls:
+#   - hosts:
+#       - evo-todo.example.com
+#     secretName: evo-todo-tls

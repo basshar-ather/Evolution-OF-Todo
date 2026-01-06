@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evo-todo-backend
+  labels:
+    app: evo-todo-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: evo-todo-backend
+  template:
+    metadata:
+      labels:
+        app: evo-todo-backend
+    spec:
+      containers:
+      - name: backend
+        image: <registry>/evo-todo-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          value: sqlite:////data/database.db
+        - name: PYTHONUNBUFFERED
+          value: '1'
+        envFrom:
+        - secretRef:
+            name: evo-todo-secrets
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: evo-todo-pvc

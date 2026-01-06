@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evo-todo-config
+data:
+  # Application configuration keys
+  APP_ENV: "production"
+  LOG_LEVEL: "info"
+  # DATABASE_URL should be provided by Secret or environment override

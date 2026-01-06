@@ -1,0 +1,25 @@
+image:
+  repository: evo-todo-backend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  host: example.com
+
+postgres:
+  enabled: false
+  host: ""
+  user: evo
+  password: evo_pass
+  db: evo_todo
+
+persistence:
+  enabled: true
+  size: 1Gi

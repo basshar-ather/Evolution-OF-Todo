@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: evo-postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: evo-postgres
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evo-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evo-postgres
+  template:
+    metadata:
+      labels:
+        app: evo-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_DB
+          value: evo_todo
+        - name: POSTGRES_USER
+          value: evo
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: evo-todo-secrets
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pgdata
+        persistentVolumeClaim:
+          claimName: evo-postgres-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: evo-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage
