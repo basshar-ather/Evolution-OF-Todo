@@ -4,8 +4,14 @@ param(
     [switch]$Push
 )
 
+# Use script-relative paths to ensure correct Docker build context regardless of CWD
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$repoRoot = Resolve-Path (Join-Path $scriptRoot "..")
+$backendBuildContext = Join-Path $repoRoot "phases\phase-1\backend"
+$dockerfile = Join-Path $repoRoot "phases\phase-4\backend\Dockerfile"
+
 Write-Output "Building Docker image: $ImageTag"
-docker build -t $ImageTag -f phases/phase-4/backend/Dockerfile phases/phase-1/backend
+docker build -t $ImageTag -f "$dockerfile" "$backendBuildContext"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Docker build failed. Ensure Docker Desktop is running and the daemon is available."

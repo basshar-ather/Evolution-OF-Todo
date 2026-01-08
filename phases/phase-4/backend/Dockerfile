@@ -11,13 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # copy only requirements first for better caching
-COPY ../../phase-1/backend/requirements.txt /app/requirements.txt
+# The build context is the Phase I backend directory; copy from '.' to use that context
+COPY requirements.txt /app/requirements.txt
 
 RUN python -m pip install --upgrade pip setuptools
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# copy application
-COPY ../../phase-1/backend /app
+# copy application from build context
+COPY . /app
 
 ENV DATABASE_URL="sqlite:////data/database.db"
 

@@ -3,6 +3,9 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from .database import init_db, get_session
 from .models import TodoCreate, TodoRead, User
@@ -15,6 +18,19 @@ from fastapi import Depends
 from .chat import handle_chat
 
 app = FastAPI(title="Evolution of Todo - Phase I")
+
+# Serve a tiny frontend for demo purposes
+FRONTEND_DIR = Path(__file__).resolve().parents[1] / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+
+
+@app.get("/")
+def root_index():
+    index = FRONTEND_DIR / "index.html"
+    if index.exists():
+        return FileResponse(index)
+    return {"status": "ok"}
 
 
 @app.on_event("startup")

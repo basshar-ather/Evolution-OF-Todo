@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Evolution of Todo - Demo UI</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 1rem; }
+      .todo { border: 1px solid #ddd; padding: .5rem; margin: .5rem 0 }
+    </style>
+  </head>
+  <body>
+    <h1>Evolution of Todo — Demo UI</h1>
+    <section>
+      <h2>Create Todo</h2>
+      <input id="title" placeholder="Title" />
+      <input id="desc" placeholder="Description" />
+      <button id="create">Create</button>
+    </section>
+
+    <section>
+      <h2>Todos</h2>
+      <div id="todos"></div>
+      <button id="refresh">Refresh</button>
+    </section>
+
+    <section>
+      <h2>Chat (AI)</h2>
+      <input id="chatmsg" placeholder="e.g. create todo: Buy milk | 2L" size="60" />
+      <button id="send">Send</button>
+      <pre id="chatout"></pre>
+    </section>
+
+    <script>
+      const BASE = '';
+      async function refresh(){
+        const r = await fetch(`${BASE}/todos`);
+        const list = await r.json();
+        const el = document.getElementById('todos');
+        el.innerHTML = '';
+        list.forEach(t=>{
+          const d = document.createElement('div'); d.className='todo';
+          d.innerText = `${t.title} — ${t.description || ''} [${t.status}]`;
+          el.appendChild(d);
+        });
+      }
+      document.getElementById('refresh').onclick = refresh;
+      document.getElementById('create').onclick = async ()=>{
+        const title = document.getElementById('title').value;
+        const desc = document.getElementById('desc').value;
+        await fetch(`${BASE}/todos`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title,description:desc})});
+        refresh();
+      };
+      document.getElementById('send').onclick = async ()=>{
+        const m = document.getElementById('chatmsg').value;
+        const r = await fetch(`${BASE}/chat`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:m})});
+        const j = await r.json();
+        document.getElementById('chatout').innerText = JSON.stringify(j, null, 2);
+        refresh();
+      };
+      // initial
+      refresh();
+    </script>
+  </body>
+</html>
